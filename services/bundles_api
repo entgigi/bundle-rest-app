@@ -2,10 +2,13 @@ package services
 
 import (
 	"k8s.io/client-go/rest"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+    "k8s.io/apimachinery/pkg/runtime/serializer"
+    "k8s.io/client-go/kubernetes/scheme"
 )
 
 type BundleService struct {
-	rest.interface
+	restClient rest.interface
 }
 
 func NewBundleService(config *rest.Config) *BundleService {
@@ -19,4 +22,8 @@ func NewBundleService(config *rest.Config) *BundleService {
     if err != nil {
         return nil, err
     }
+
+	return &BundleService{
+		restClient: client
+	}
 }
