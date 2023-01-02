@@ -38,9 +38,13 @@ func main() {
 
 	config, err := getKubeClient()
 	if err != nil {
-		log.Fatalf("error retrivekubernetes configuration: %s\n", err)
+		log.Fatalf("error retrive kubernetes configuration: %s\n", err)
 	}
-	bundleCtrl := controllers.NewBundleCtrl(config)
+
+	bundleCtrl, err := controllers.NewBundleCtrl(config)
+	if err != nil {
+		log.Fatalf("error create bundle ctrl : %s\n", err)
+	}
 
 	router.GET("/bundles", bundleCtrl.GetBundles)
 	router.GET("/bundles/:code", bundleCtrl.GetBundles)

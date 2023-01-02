@@ -20,8 +20,9 @@ type BundleCtrl struct {
 	bundleService *services.BundleService
 }
 
-func NewBundleCtrl(config *rest.Config) *BundleCtrl {
-	return &BundleCtrl{services.NewBundleService(config)}
+func NewBundleCtrl(config *rest.Config) (*BundleCtrl, error) {
+	s, err := services.NewBundleService(config)
+	return &BundleCtrl{s}, err
 }
 
 func (bc *BundleCtrl) ListBundles(ctx *gin.Context) {
