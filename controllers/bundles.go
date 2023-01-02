@@ -3,7 +3,9 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/entgigi/bundle-rest-app/services"
 	"github.com/gin-gonic/gin"
+	"k8s.io/client-go/rest"
 )
 
 type BundleDto struct {
@@ -14,14 +16,22 @@ type BundleDto struct {
 	SignatureInfo string `json:"signatureInfo"`
 }
 
-func ListBundles(ctx *gin.Context) {
+type BundleCtrl struct {
+	bundleService *services.BundleService
+}
+
+func NewBundleCtrl(config *rest.Config) *BundleCtrl {
+	return &BundleCtrl{services.NewBundleService(config)}
+}
+
+func (bc *BundleCtrl) ListBundles(ctx *gin.Context) {
 
 	bundles := []BundleDto{{Code: "code", Name: "name"}}
 
 	ctx.JSON(http.StatusOK, gin.H{"data": bundles})
 }
 
-func GetBundles(ctx *gin.Context) {
+func (bc *BundleCtrl) GetBundles(ctx *gin.Context) {
 
 	code := ctx.Param("code")
 	bundle := BundleDto{Code: code, Name: "myname"}

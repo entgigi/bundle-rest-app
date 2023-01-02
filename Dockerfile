@@ -12,6 +12,9 @@ RUN go mod download
 # Copy the go source
 COPY main.go main.go
 COPY controllers/ controllers/
+COPY commons/ commons/
+COPY services/ services/
+COPY utilities/ utilities/
 
 # Build
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -o bundle-rest-app main.go

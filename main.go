@@ -2,15 +2,21 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 
 	"github.com/entgigi/bundle-rest-app/controllers"
 	"github.com/gin-gonic/gin"
+
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 func main() {
@@ -30,15 +36,14 @@ func main() {
 	router.GET("/healthz", controllers.Healthz)
 	router.GET("/version", controllers.GetVersion)
 
-	router.GET("/bundles", controllers.ListBundles)
-	router.GET("/bundles/:code", controllers.GetBundles)
+	config, err := getKubeClient()
+	if err != nil {
+		log.Fatalf("error retrivekubernetes configuration: %s\n", err)
+	}
+	bundleCtrl := controllers.NewBundleCtrl(config)
 
-	/*
-		err := r.Run()
-		if err != nil {
-			return
-		}
-	*/
+	router.GET("/bundles", bundleCtrl.GetBundles)
+	router.GET("/bundles/:code", bundleCtrl.GetBundles)
 
 	srv := &http.Server{
 		Addr:    port,
@@ -73,4 +78,29 @@ func main() {
 		log.Println("timeout of 5 seconds.")
 	}
 	log.Println("Server exiting")
+}
+
+func getKubeClient() (*rest.Config, error) {
+	var config *rest.Config
+	var err error
+	config, err = rest.InClusterConfig()
+	if err != nil {
+		if err == rest.ErrNotInCluster {
+			var kubeconfig string
+			if home := homedir.HomeDir(); home != "" {
+				kubeconfig = filepath.Join(home, ".kube", "config")
+			}
+
+			var internalError error
+			config, internalError = clientcmd.BuildConfigFromFlags("", kubeconfig)
+			if internalError != nil {
+				return nil, err
+			}
+			fmt.Println("Use kube config")
+		}
+	} else {
+		fmt.Println("Use incluster config")
+	}
+
+	return config, nil
 }
