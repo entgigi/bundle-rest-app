@@ -1,4 +1,4 @@
-package services
+package clients
 
 import (
 	"github.com/entgigi/bundle-operator/api/v1alpha1"
@@ -7,11 +7,15 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-type BundleService struct {
-	restClient rest.Interface
+type BundleV1Alpha1Api interface {
+	Bundles(ns string) BundleInterface
 }
 
-func NewBundleService(c *rest.Config) (*BundleService, error) {
+type BundleV1Alpha1Client struct {
+	client rest.Interface
+}
+
+func NewForConfig(c *rest.Config) (*BundleV1Alpha1Client, error) {
 	config := *c
 	config.ContentConfig.GroupVersion = &schema.GroupVersion{Group: v1alpha1.GroupVersion.Group, Version: v1alpha1.GroupVersion.Version}
 	config.APIPath = "/apis"
@@ -22,8 +26,12 @@ func NewBundleService(c *rest.Config) (*BundleService, error) {
 	if err != nil {
 		return nil, err
 	}
+	return &BundleV1Alpha1Client{client}, nil
+}
 
-	return &BundleService{
-		restClient: client,
-	}, nil
+func (api *BundleV1Alpha1Client) Bundles(ns string) BundleInterface {
+	return &bundleClient{
+		restClient: api.client,
+		namespace:  ns,
+	}
 }

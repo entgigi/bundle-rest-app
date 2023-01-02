@@ -46,8 +46,8 @@ func main() {
 		log.Fatalf("error create bundle ctrl : %s\n", err)
 	}
 
-	router.GET("/bundles", bundleCtrl.GetBundles)
-	router.GET("/bundles/:code", bundleCtrl.GetBundles)
+	router.GET("/bundles", bundleCtrl.GetBundle)
+	router.GET("/bundles/:code", bundleCtrl.GetBundle)
 
 	srv := &http.Server{
 		Addr:    port,

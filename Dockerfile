@@ -13,7 +13,7 @@ RUN go mod download
 COPY main.go main.go
 COPY controllers/ controllers/
 COPY commons/ commons/
-COPY services/ services/
+COPY clients/ clients/
 COPY utilities/ utilities/
 
 # Build

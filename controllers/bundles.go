@@ -3,7 +3,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/entgigi/bundle-rest-app/services"
+	"github.com/entgigi/bundle-rest-app/clients"
 	"github.com/gin-gonic/gin"
 	"k8s.io/client-go/rest"
 )
@@ -17,11 +17,11 @@ type BundleDto struct {
 }
 
 type BundleCtrl struct {
-	bundleService *services.BundleService
+	apiClient *clients.BundleV1Alpha1Client
 }
 
 func NewBundleCtrl(config *rest.Config) (*BundleCtrl, error) {
-	s, err := services.NewBundleService(config)
+	s, err := clients.NewForConfig(config)
 	return &BundleCtrl{s}, err
 }
 
@@ -32,7 +32,7 @@ func (bc *BundleCtrl) ListBundles(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"data": bundles})
 }
 
-func (bc *BundleCtrl) GetBundles(ctx *gin.Context) {
+func (bc *BundleCtrl) GetBundle(ctx *gin.Context) {
 
 	code := ctx.Param("code")
 	bundle := BundleDto{Code: code, Name: "myname"}
