@@ -24,7 +24,7 @@ func (bs *bundleClient) Get(name string, opts metav1.GetOptions) (*v1alpha1.Enta
 	err := bs.restClient.
 		Get().
 		Namespace(bs.namespace).
-		Resource("projects").
+		Resource("entandobundlev2s").
 		Name(name).
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Do(context.TODO()).
@@ -38,7 +38,7 @@ func (bs *bundleClient) List(opts metav1.ListOptions) (*v1alpha1.EntandoBundleV2
 	err := bs.restClient.
 		Get().
 		Namespace(bs.namespace).
-		Resource("projects").
+		Resource("entandobundlev2s").
 		VersionedParams(&opts, scheme.ParameterCodec).
 		Do(context.TODO()).
 		Into(&result)

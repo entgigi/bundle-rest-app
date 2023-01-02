@@ -11,8 +11,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/entgigi/bundle-operator/api/v1alpha1"
 	"github.com/entgigi/bundle-rest-app/controllers"
+	"github.com/entgigi/bundle-rest-app/utilities"
 	"github.com/gin-gonic/gin"
+	"k8s.io/client-go/kubernetes/scheme"
 
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -26,6 +29,11 @@ func main() {
 		port = ":8080"
 	}
 
+	if _, err := utilities.GetWatchNamespace(); err != nil {
+		log.Fatalf("error retrive kubernetes namespace: %s\n", err)
+
+	}
+
 	router := gin.Default()
 
 	router.GET("/", func(ctx *gin.Context) {
@@ -36,6 +44,7 @@ func main() {
 	router.GET("/healthz", controllers.Healthz)
 	router.GET("/version", controllers.GetVersion)
 
+	v1alpha1.AddToScheme(scheme.Scheme)
 	config, err := getKubeClient()
 	if err != nil {
 		log.Fatalf("error retrive kubernetes configuration: %s\n", err)
@@ -46,7 +55,7 @@ func main() {
 		log.Fatalf("error create bundle ctrl : %s\n", err)
 	}
 
-	router.GET("/bundles", bundleCtrl.GetBundle)
+	router.GET("/bundles", bundleCtrl.ListBundles)
 	router.GET("/bundles/:code", bundleCtrl.GetBundle)
 
 	srv := &http.Server{
